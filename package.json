@@ -1,0 +1,11 @@
+{
+  "name": "aoc-2023",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^20.10.3",
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
