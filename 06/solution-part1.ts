@@ -17,24 +17,30 @@ export function countWaysToWinAnalytically(maxTime: number, minDistance: number)
   return Math.max(0, upperBound - lowerBound + 1);
 }
 
+function measure(label: string, fn: () => void) {
+  Bun.gc(true);
+  const startMemory = process.memoryUsage();
+  console.time(label);
+  fn();
+  console.timeEnd(label);
+  const endMemory = process.memoryUsage();
+  console.log(`${label}: Memory usage (RSS): ${(endMemory.rss - startMemory.rss).toLocaleString()} bytes`);
+  console.log(`${label}: Memory usage (heapTotal): ${(endMemory.heapTotal - startMemory.heapTotal).toLocaleString()} bytes`);
+}
+
 const input = (await Bun.file('input.txt').text()).replaceAll(/ +/g, ' ').trim();
 const inputValues = input.split('\n').map(line => line.split(':')[1].trim().split(' ').map(Number));
 
 const inputPairs = inputValues[0].map((_, i) => [inputValues[0][i], inputValues[1][i]]);
 
-{
-  console.time('numeric');
+measure('numeric', () => {
   const waysToWin = inputPairs.map(([maxTime, minDistance]) => countWaysToWinNumerically(maxTime, minDistance));
   const product = waysToWin.reduce((acc, cur) => acc * cur, 1);
-  console.timeEnd('numeric');
-
   console.log(product);
-}
-{
-  console.time('analytical');
+});
+
+measure('analytical', () => {
   const waysToWin = inputPairs.map(([maxTime, minDistance]) => countWaysToWinAnalytically(maxTime, minDistance));
   const product = waysToWin.reduce((acc, cur) => acc * cur, 1);
-  console.timeEnd('analytical');
-
   console.log(product);
-}
+});

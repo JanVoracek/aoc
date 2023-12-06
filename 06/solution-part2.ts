@@ -17,18 +17,26 @@ export function countWaysToWinAnalytically(maxTime: number, minDistance: number)
   return Math.max(0, upperBound - lowerBound + 1);
 }
 
+function measure(label: string, fn: () => void) {
+  Bun.gc(true);
+  const startMemory = process.memoryUsage();
+  console.time(label);
+  fn();
+  console.timeEnd(label);
+  const endMemory = process.memoryUsage();
+  console.log(`${label}: Memory usage (RSS): ${(endMemory.rss - startMemory.rss).toLocaleString()} bytes`);
+  console.log(`${label}: Memory usage (heapTotal): ${(endMemory.heapTotal - startMemory.heapTotal).toLocaleString()} bytes`);
+}
+
 const input = (await Bun.file('input.txt').text()).replaceAll(/ +/g, '').trim();
 const inputPair = input.split('\n').map(line => Number(line.split(':')[1]));
 
-{
-  console.time('numeric');
+measure('numeric', () => {
   const waysToWin = countWaysToWinNumerically(inputPair[0], inputPair[1]);
-  console.timeEnd('numeric');
   console.log(waysToWin);
-}
-{
-  console.time('analytical');
+});
+
+measure('analytical', () => {
   const waysToWin = countWaysToWinAnalytically(inputPair[0], inputPair[1]);
-  console.timeEnd('analytical');
   console.log(waysToWin);
-}
+});
