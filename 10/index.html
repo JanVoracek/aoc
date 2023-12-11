@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Day 10</title>
+  </head>
+  <body>
+    <script type="module">
+      import { stripIndent } from 'https://cdn.jsdelivr.net/npm/common-tags@1.8.2/+esm';
+
+      const directions = {
+        '|': 'north-south',
+        '-': 'east-west',
+        L: 'north-east',
+        J: 'north-west',
+        7: 'south-east',
+        F: 'south-west',
+      };
+
+      function replaceAt(input, index, replacement) {
+        return input.slice(0, index) + replacement + input.slice(index + replacement.length);
+      }
+
+      function deduceStartSymbol(input, startPosition, mazeLength) {
+        const [x, y] = startPosition;
+        const symbolAt = (dx, dy) => input[x + dx + (y + dy) * mazeLength];
+
+        let possibleSymbols = Object.keys(directions);
+
+        if (['-', '7', 'J'].includes(symbolAt(1, 0))) {
+          possibleSymbols = possibleSymbols.filter(s => ['-', 'L', 'F'].includes(s));
+        }
+        if (['-', 'F', 'L'].includes(symbolAt(-1, 0))) {
+          possibleSymbols = possibleSymbols.filter(s => ['-', 'J', '7'].includes(s));
+        }
+        if (['|', 'L', 'J'].includes(symbolAt(0, 1))) {
+          possibleSymbols = possibleSymbols.filter(s => ['|', 'F', '7'].includes(s));
+        }
+        if (['|', 'F', '7'].includes(symbolAt(0, -1))) {
+          possibleSymbols = possibleSymbols.filter(s => ['|', 'L', 'J'].includes(s));
+        }
+
+        return possibleSymbols[0];
+      }
+
+      function solve(input) {
+        const mazeLength = input.indexOf('\n') + 1;
+        const sPosition = input.indexOf('S');
+        if (sPosition === -1) {
+          alert('No start position found');
+          throw new Error('No start position found');
+        }
+        const startPosition = [sPosition % mazeLength, Math.floor(sPosition / mazeLength)];
+
+        const symbolUnderStart = deduceStartSymbol(input, startPosition, mazeLength);
+        let symbol = symbolUnderStart;
+        let previous = startPosition;
+        let position = startPosition;
+        let mazePositions = new Set();
+        let length = 0;
+
+        do {
+          const [x, y] = position;
+          mazePositions.add(`${x},${y}`);
+          const [px, py] = previous;
+          const direction = directions[symbol];
+
+          if (direction === 'north-south') {
+            position = py < y ? [x, y + 1] : [x, y - 1];
+          } else if (direction === 'east-west') {
+            position = px < x ? [x + 1, y] : [x - 1, y];
+          } else if (direction === 'north-east') {
+            position = py < y ? [x + 1, y] : [x, y - 1];
+          } else if (direction === 'north-west') {
+            position = py < y ? [x - 1, y] : [x, y - 1];
+          } else if (direction === 'south-east') {
+            position = py > y ? [x - 1, y] : [x, y + 1];
+          } else if (direction === 'south-west') {
+            position = py > y ? [x + 1, y] : [x, y + 1];
+          }
+          previous = [x, y];
+          symbol = input[position[0] + position[1] * mazeLength];
+          length++;
+
+          if (length === 1_000_000) {
+            alert('Pipes are too long (maybe not connected?)');
+            throw new Error('Pipes are too long (maybe not connected?)');
+          }
+        } while (symbol !== 'S');
+
+        input = replaceAt(input, startPosition[0] + startPosition[1] * mazeLength, symbolUnderStart);
+        let output = input;
+        const lines = input.split('\n');
+        let area = 0;
+
+        for (let y = 0; y < lines.length; y++) {
+          let insideMaze = false;
+          let corner;
+          for (let x = 0; x < lines[y].length; x++) {
+            if (mazePositions.has(`${x},${y}`)) {
+              let symbol = lines[y][x];
+              if (symbol === '-') {
+                continue;
+              }
+              if (symbol === '|') {
+                insideMaze = !insideMaze;
+                continue;
+              }
+              if (!corner) {
+                corner = symbol;
+                continue;
+              }
+
+              if ((corner === 'L' && symbol === '7') || (corner === 'F' && symbol === 'J')) {
+                insideMaze = !insideMaze;
+              }
+              corner = undefined;
+              continue;
+            }
+            if (insideMaze) {
+              area++;
+              output = replaceAt(output, x + y * mazeLength, 'I');
+            } else {
+              output = replaceAt(output, x + y * mazeLength, 'O');
+            }
+          }
+        }
+        return [output, area];
+      }
+
+      window.aoc = {
+        pretty: false,
+        input: stripIndent`
+          ...........
+          .S-------7.
+          .|F-----7|.
+          .||.....||.
+          .||.....||.
+          .|L-7.F-J|.
+          .|..|.|..|.
+          .L--J.L--J.
+          ...........
+        `,
+        output: '',
+        solve,
+        prettyPrint(input) {
+          const replacements = {
+            '|': '│',
+            '-': '─',
+            L: '└',
+            J: '┘',
+            7: '┐',
+            F: '┌',
+          };
+
+          return input && input.replaceAll(/[\-LJ7F]/g, c => replacements[c] ?? c);
+        },
+      };
+    </script>
+    <div x-data="{...window.aoc}">
+      <div>
+        <label><input type="checkbox" x-model="pretty" /> Pretty print</label>
+      </div>
+      <div style="display: flex; gap: 1rem; flex-direction: column">
+        <textarea
+          x-model="pretty ? prettyPrint(input) : input"
+          style="font-family: monospace"
+          id="input"
+          cols="30"
+          rows="10"
+        ></textarea>
+        <button @click="output = solve(input)[0]" :disabled="pretty">Solve</button>
+        <textarea
+          x-text="pretty ? prettyPrint(output) : output"
+          style="font-family: monospace"
+          id="output"
+          cols="30"
+          rows="10"
+        ></textarea>
+      </div>
+    </div>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  </body>
+</html>
