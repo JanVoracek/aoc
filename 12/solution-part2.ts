@@ -31,45 +31,41 @@ export function memoize<T extends unknown[], U>(fn: (...args: T) => U): (...args
 }
 
 const findArrangements = memoize((map: string, damagedGroups: number[]): number => {
+  // empty map && no damaged groups => 1 arrangement
   if (map.length === 0) {
     return damagedGroups.length === 0 ? 1 : 0;
   }
 
+  // no damaged groups && damaged spring on the map => 0 arrangements
   if (damagedGroups.length === 0) {
     return map.includes('#') ? 0 : 1;
   }
 
-  if (map.length < minimalLength(damagedGroups)) {
-    return 0;
+  let result = 0;
+
+  // (maybe) working spring => check the rest of the map
+  if (map[0] === '.' || map[0] === '?') {
+    result += findArrangements(map.slice(1), damagedGroups);
   }
 
-  if (map[0] === '?') {
-    return findArrangements('#' + map.slice(1), damagedGroups) + findArrangements(map.slice(1), damagedGroups);
-  }
-
-  if (map[0] === '.') {
-    return findArrangements(map.slice(1), damagedGroups);
-  }
-
-  if (map[0] === '#') {
-    const [group, ...leftoverGroups] = damagedGroups;
-    if (map.slice(0, group).includes('.')) {
-      return 0;
+  // (maybe) damaged spring => check whether the group fits
+  if (map[0] === '#' || map[0] === '?') {
+    const groupLength = damagedGroups[0];
+    if (
+      // map is long enough
+      map.length >= groupLength &&
+      // slice consists of only (maybe) damaged springs
+      !map.slice(0, groupLength).includes('.') &&
+      // spring after the group is not damaged (it would mean that the group should to be bigger)
+      (groupLength === map.length || map[groupLength] !== '#')
+    ) {
+      // check the rest of the map
+      result += findArrangements(map.slice(groupLength + 1), damagedGroups.slice(1));
     }
-
-    if (map[group] === '#') {
-      return 0;
-    }
-
-    return findArrangements(map.slice(group + 1), leftoverGroups);
   }
 
-  return 0; // this should never happen :D
+  return result;
 });
-
-function minimalLength(damagedGroups: number[]) {
-  return sum(damagedGroups) + damagedGroups.length - 1;
-}
 
 function sum(arr: number[]) {
   return arr.reduce((a, b) => a + b, 0);
@@ -81,4 +77,3 @@ console.time('perf');
 const result = sum(rows.map(row => findArrangements(row.map, row.damagedGroupsSizes)));
 console.timeEnd('perf');
 console.log(result);
-
