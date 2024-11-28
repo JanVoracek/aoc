@@ -1,0 +1,9 @@
+{
+  "tasks": {
+    "init": "deno run -A --env-file init.ts"
+  },
+  "workspace": ["./.tpl", "./*"],
+  "imports": {
+    "@std/fs": "jsr:@std/fs@^1.0.6"
+  }
+}
