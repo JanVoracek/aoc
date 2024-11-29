@@ -9,6 +9,9 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "heap-js": "^2.3.0"
+    "core-dts": "^0.0.3",
+    "core-js": "^3.39.0",
+    "heap-js": "^2.3.0",
+    "type-fest": "^4.29.0"
   }
 }

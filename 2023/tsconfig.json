@@ -17,7 +17,8 @@
     "allowJs": true,
     "types": [
       "node",
-      "bun-types" // add Bun global
+      "bun-types", // add Bun global
+      "core-dts/src/proposals/stage-1/new-collections-methods.d.ts"
     ]
   }
 }
