@@ -2,3 +2,4 @@ node_modules
 input.txt
 .env
 deno.lock
+go.sum
