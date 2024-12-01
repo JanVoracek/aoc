@@ -4,7 +4,7 @@ export const input = await Deno.readTextFile('input.txt');
 export type ParseOutput = ReturnType<typeof parse>;
 
 export function parse(input: string) {
-  const lines = input.split('\n');
+  const lines = input.trim().split('\n');
 
   return lines;
 }

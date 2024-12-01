@@ -7,7 +7,7 @@ import (
 )
 
 func parse(input string) []string {
-	return strings.Split(input, "\n")
+	return strings.Split(strings.TrimSpace(input), "\n")
 }
 
 func solvePart1(input []string) int {

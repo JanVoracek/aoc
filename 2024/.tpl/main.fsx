@@ -3,7 +3,7 @@
 module Main =
   type ParseOutput = string list
 
-  let parse (input: string) : ParseOutput = input.Split('\n') |> List.ofArray
+  let parse (input: string) : ParseOutput = input.Trim().Split('\n') |> List.ofArray
 
   let solvePart1 (input: ParseOutput) = 0
 
