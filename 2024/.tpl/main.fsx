@@ -10,8 +10,8 @@ module Main =
   let solvePart2 (input: ParseOutput) = 0
 
   let main (argv: string array) =
-    let inputType = argv.[2]
-    let partNumber = argv.[3]
+    let inputType = argv.[0]
+    let partNumber = argv.[1]
 
     let currentInput =
       if inputType = "example" then
@@ -24,5 +24,5 @@ module Main =
     let parsed = parse currentInput
     solveFunction parsed |> printfn "%A"
 
-if System.Environment.GetCommandLineArgs().GetValue(1) = "main.fsx" then
-  Main.main (System.Environment.GetCommandLineArgs()) |> ignore
+if System.Environment.GetCommandLineArgs().[1] = "main.fsx" then
+  Main.main (System.Environment.GetCommandLineArgs().[2..]) |> ignore
