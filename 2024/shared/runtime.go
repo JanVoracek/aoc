@@ -30,3 +30,10 @@ func Run[T any](parse func(string) T, solvePart1 func(input T) any, solvePart2 f
 		fmt.Println(solvePart2(parsed))
 	}
 }
+
+func HandleError[T any](value T, err error) T {
+	if err != nil {
+		panic(err) // This is ok for AoC
+	}
+	return value
+}
