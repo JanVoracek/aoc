@@ -13,3 +13,12 @@ export function range(start: number, end: number) {
 export function cartesianProduct<T>(a: T[], b: T[]) {
   return a.flatMap(x => b.map(y => [x, y] as [T, T]));
 }
+
+export function combinations<T>(array: T[], k: number): T[][] {
+  if (k === 0) return [[]];
+  if (k > array.length) return [];
+
+  return array.flatMap((item, index) =>
+      combinations(array.slice(index + 1), k - 1).map((combo) => [item, ...combo])
+  );
+}
