@@ -17,33 +17,33 @@ export function solvePart1(input: ParseOutput) {
 
 export function solvePart2(input: ParseOutput) {
   const blinks = 75;
-  let stones = new Map<bigint, number>();
+  let stones = new Map<string, number>();
   for (const n of input) {
-    stones.set(BigInt(n), 1);
+    stones.set(n, 1);
   }
-
   for (let i = 0; i < blinks; i++) {
     stones = blinkFast(stones);
   }
   return [...stones.values()].reduce(sum);
 }
 
-function blinkFast(stones: Map<bigint, number>): Map<bigint, number> {
-  const newStones = new Map<bigint, number>();
+function blinkFast(stones: Map<string, number>): Map<string, number> {
+  const newStones = new Map<string, number>();
 
   for (const [stone, count] of stones.entries()) {
-    if (stone === 0n) {
-      newStones.set(1n, (newStones.get(1n) ?? 0) + count);
+    if (stone === '0') {
+      newStones.set('1', (newStones.get('1') ?? 0) + count);
     } else {
       const digits = stone.toString();
       if (digits.length % 2 === 0) {
         const half = digits.length / 2;
-        const left = BigInt(digits.slice(0, half));
-        const right = BigInt(digits.slice(half));
+        const left = digits.slice(0, half).replace(/^0+/, '') || '0';
+        const right = digits.slice(half).replace(/^0+/, '') || '0';
+
         newStones.set(left, (newStones.get(left) ?? 0) + count);
         newStones.set(right, (newStones.get(right) ?? 0) + count);
       } else {
-        const multiplied = stone * 2024n;
+        const multiplied = Number(stone) * 2024 + '';
         newStones.set(multiplied, (newStones.get(multiplied) ?? 0) + count);
       }
     }
@@ -65,11 +65,8 @@ function blinkSlow(stones: string[]): string[] {
 
     if (length % 2 === 0) {
       const half = length / 2;
-      let left = stone.slice(0, half);
-      let right = stone.slice(half);
-
-      left = left.replace(/^0+/, '') || '0';
-      right = right.replace(/^0+/, '') || '0';
+      const left = stone.slice(0, half).replace(/^0+/, '') || '0';
+      const right = stone.slice(half).replace(/^0+/, '') || '0';
 
       newStones.push(left, right);
       continue;
