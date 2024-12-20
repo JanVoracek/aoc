@@ -9,6 +9,7 @@ export async function run<T>(parse: (input: string) => T, part1: (input: T) => u
   const parsed = parse(currentInput);
   console.log(solveFunction(parsed));
   console.timeEnd('Execution time');
+  Deno.exit();
 }
 
 export async function readExample() {
