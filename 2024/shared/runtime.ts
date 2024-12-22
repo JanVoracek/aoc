@@ -20,15 +20,14 @@ export async function readInput() {
   return await Deno.readTextFile('input.txt');
 }
 
-export function memoize<TArgs extends unknown[], TReturn>(fn: (...args: TArgs) => TReturn) {
-  const cache = new Map<string, TReturn>();
-  return (...args: TArgs) => {
+export function memoize<T extends (...args: any[]) => any>(func: T): T {
+  const cache = new Map<string, ReturnType<T>>();
+
+  return ((...args: Parameters<T>): ReturnType<T> => {
     const key = JSON.stringify(args);
-    if (cache.has(key)) {
-      return cache.get(key)!;
+    if (!cache.has(key)) {
+      cache.set(key, func(...args));
     }
-    const result = fn(...args);
-    cache.set(key, result);
-    return result;
-  };
+    return cache.get(key) as ReturnType<T>;
+  }) as T;
 }
